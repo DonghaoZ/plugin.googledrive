@@ -348,18 +348,20 @@ class GoogleDrive(Provider):
         return item
     
     def get_subtitles(self, parent, name, item_driveid=None, include_download_info=False):
-        parameters = self.prepare_parameters()
-        item_driveid = Utils.default(item_driveid, self._driveid)
-        subtitles = []
-        parameters['fields'] = 'files(' + self._get_field_parameters() + ')'
-        parameters['q'] = 'name contains \'%s\'' % Utils.str(Utils.remove_extension(name)).replace("'","\\'")
-        parameters['pageSize'] = 1000
-        files = self.get('/files', parameters = parameters)
-        for f in files['files']:
-            subtitle = self._extract_item(f, include_download_info)
-            if subtitle['name_extension'].lower() in ('srt','idx','sub','sbv','ass','ssa','smi'):
-                subtitles.append(subtitle)
-        return subtitles
+      parameters = self.prepare_parameters()
+      item_driveid = Utils.default(item_driveid, self._driveid)
+      subtitles = []
+      parameters['fields'] = 'files(' + self._get_field_parameters() + ')'
+      parameters['q'] = 'name contains \'%s\'' % Utils.str(Utils.remove_extension(name)).replace("'","\\'")
+      parameters['pageSize'] = 1000
+      files = self.get('/files', parameters = parameters)
+      for f in files['files']:
+          subtitle = self._extract_item(f, include_download_info)
+          if subtitle['name_extension'].lower() in ('srt','idx','sub','sbv','ass','ssa','smi'):
+              # Add this line to compare file names
+              if Utils.remove_extension(name) in subtitle['name']:
+                  subtitles.append(subtitle)
+      return subtitles
     
     def get_item(self, item_driveid=None, item_id=None, path=None, find_subtitles=False, include_download_info=False):
         parameters = self.prepare_parameters()
